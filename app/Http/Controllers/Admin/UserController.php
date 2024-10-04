@@ -74,7 +74,10 @@ class UserController extends Controller
             ->with('user_details')
             ->findOrFail($id);
 
-        return view('admin.users.edit', compact('user'));
+        return view(
+            'admin.users.edit',
+            compact('user')
+        );
     }
 
     /**
@@ -109,6 +112,7 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        User::query()->findOrFail($id)->delete();
+        return redirect()->route('users.index')->with('success', 'User was deleted');
     }
 }

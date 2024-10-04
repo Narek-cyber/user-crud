@@ -150,25 +150,26 @@
                             <td>{{ $user->user_details->phone_number }}</td>
                             <td>{{ $user->user_details->address }}</td>
                             <td>{{ $user->created_at->format('d/m/Y') }}</td>
-                            <td>
+                            <td class="dfc">
                                 <a
-                                    class="btn btn-success btn-sm"
+                                    class="link-primary mr-3"
                                     href="{{ route('users.edit', $user->id) }}"
                                 >
                                     Edit
                                 </a>
-{{--                                <form--}}
-{{--                                    action="{{ route('users.invite', ['id' => $user->id]) }}"--}}
-{{--                                    method="POST"--}}
-{{--                                >--}}
-{{--                                    @csrf--}}
-{{--                                    <button--}}
-{{--                                        class="btn btn-primary btn-sm"--}}
-{{--                                        type="submit"--}}
-{{--                                    >--}}
-{{--                                        Invite--}}
-{{--                                    </button>--}}
-{{--                                </form>--}}
+                                <form
+                                    action="{{ route('users.destroy', $user->id) }}"
+                                    method="POST"
+                                    class="m-0"
+                                >
+                                    @csrf
+                                    @method('DELETE')
+                                    <button
+                                        class="btn btn-danger btn-sm del-btn"
+                                    >
+                                        Delete
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                     @empty
