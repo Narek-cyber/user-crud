@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\User\StoreUserRequest;
+use App\Http\Requests\Admin\User\UpdateUserRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -15,9 +16,13 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::query()->with('user_details')->paginate(10);
+        $users = User::query()
+            ->where('role', 'user')
+            ->with('user_details')
+            ->paginate(20);
+
         return view(
-            'admin.users',
+            'admin.users.index',
             compact('users')
         );
     }
@@ -64,15 +69,39 @@ class UserController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $user = User::query()
+            ->where('role', 'user')
+            ->with('user_details')
+            ->findOrFail($id);
+
+        return view('admin.users.edit', compact('user'));
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateUserRequest $request, string $id)
     {
-        //
+        $user = User::query()
+            ->where('role', 'user')
+            ->with('user_details')
+            ->findOrFail($id);
+
+        $user_data = $request->validated();
+
+        $user->update([
+            'name' => $user_data['name'],
+            'email' => $user_data['email'],
+        ]);
+
+        $user->user_details()->updateOrCreate(
+            ['user_id' => $user->id],
+            [
+                'address' => $user_data['address'],
+                'phone_number' => $user_data['phone_number'],
+            ]
+        );
+        return redirect()->route('users.index')->with('success', 'User details was updated.');
     }
 
     /**

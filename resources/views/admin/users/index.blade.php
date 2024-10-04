@@ -26,6 +26,7 @@
                         id="name"
                         aria-describedby="nameHelp"
                         name="name"
+                        value="{{ old('name') }}"
                     >
                     @error('name')
                         <span class="text-sm text-danger">
@@ -46,6 +47,7 @@
                         id="email"
                         aria-describedby="emailHelp"
                         name="email"
+                        value="{{ old('email') }}"
                     >
                     @error('email')
                         <span class="text-sm text-danger">
@@ -66,6 +68,7 @@
                         id="phone_number"
                         aria-describedby="phone_numberHelp"
                         name="phone_number"
+                        value="{{ old('phone_number') }}"
                     >
                     @error('phone_number')
                         <span class="text-sm text-danger">
@@ -86,6 +89,7 @@
                         id="address"
                         aria-describedby="addressHelp"
                         name="address"
+                        value="{{ old('address') }}"
                     >
                     @error('address')
                         <span class="text-sm text-danger">
@@ -127,56 +131,63 @@
         <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
             <table class="table">
                 <thead class="table-dark">
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Name</th>
-                    <th scope="col">Email</th>
-                    <th scope="col">Phone</th>
-                    <th scope="col">Address</th>
-                    <th scope="col">Actions</th>
-                </tr>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Name</th>
+                        <th scope="col">Email</th>
+                        <th scope="col">Phone</th>
+                        <th scope="col">Address</th>
+                        <th scope="col">Created At</th>
+                        <th scope="col">Actions</th>
+                    </tr>
                 </thead>
                 <tbody>
-{{--                @forelse($users as $key => $user)--}}
-{{--                    <tr>--}}
-{{--                        <td>{{$key + 1}}</td>--}}
-{{--                        <td>{{$user->name}}</td>--}}
-{{--                        <td>{{$user->lastname}}</td>--}}
-{{--                        <td>{{$user->email}}</td>--}}
-{{--                        <td>{{$user->phone}}</td>--}}
-{{--                        <td>{{$user->date_of_birth}}</td>--}}
-{{--                        <td>--}}
-{{--                            <form--}}
-{{--                                action="{{ route('admin.invite', ['id' => $user->id]) }}"--}}
-{{--                                method="POST"--}}
-{{--                            >--}}
-{{--                                @csrf--}}
-{{--                                <button--}}
-{{--                                    class="btn btn-primary btn-sm"--}}
-{{--                                    type="submit"--}}
+                    @forelse($users as $key => $user)
+                        <tr>
+                            <td>{{ $key + 1 }}</td>
+                            <td>{{ $user->name }}</td>
+                            <td>{{ $user->email }}</td>
+                            <td>{{ $user->user_details->phone_number }}</td>
+                            <td>{{ $user->user_details->address }}</td>
+                            <td>{{ $user->created_at->format('d/m/Y') }}</td>
+                            <td>
+                                <a
+                                    class="btn btn-success btn-sm"
+                                    href="{{ route('users.edit', $user->id) }}"
+                                >
+                                    Edit
+                                </a>
+{{--                                <form--}}
+{{--                                    action="{{ route('users.invite', ['id' => $user->id]) }}"--}}
+{{--                                    method="POST"--}}
 {{--                                >--}}
-{{--                                    Invite--}}
-{{--                                </button>--}}
-{{--                            </form>--}}
-{{--                        </td>--}}
-{{--                    </tr>--}}
-{{--                @empty--}}
-{{--                    <td--}}
-{{--                        colspan="7"--}}
-{{--                        class="text-center fw-bold"--}}
-{{--                    >--}}
-{{--                        No users yet--}}
-{{--                    </td>--}}
-{{--                @endforelse--}}
+{{--                                    @csrf--}}
+{{--                                    <button--}}
+{{--                                        class="btn btn-primary btn-sm"--}}
+{{--                                        type="submit"--}}
+{{--                                    >--}}
+{{--                                        Invite--}}
+{{--                                    </button>--}}
+{{--                                </form>--}}
+                            </td>
+                        </tr>
+                    @empty
+                        <td
+                            colspan="7"
+                            class="text-center fw-bold"
+                        >
+                            No users yet
+                        </td>
+                    @endforelse
                 </tbody>
             </table>
-{{--            <div class="mt-3">--}}
-{{--                <div class="d-flex">--}}
-{{--                    @isset($users)--}}
-{{--                        {{ $users->links() }}--}}
-{{--                    @endisset--}}
-{{--                </div>--}}
-{{--            </div>--}}
+            <div class="mt-3">
+                <div class="d-flex">
+                    @isset($users)
+                        {{ $users->links() }}
+                    @endisset
+                </div>
+            </div>
         </div>
     </div>
 </x-app-layout>

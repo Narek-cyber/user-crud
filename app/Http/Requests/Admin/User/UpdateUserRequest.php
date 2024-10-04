@@ -3,8 +3,9 @@
 namespace App\Http\Requests\Admin\User;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
-class StoreUserRequest extends FormRequest
+class UpdateUserRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -21,17 +22,21 @@ class StoreUserRequest extends FormRequest
      */
     public function rules(): array
     {
+        $id = $this->route('id');
+
         return [
             'name' => ['required', 'max:100'],
             'email' => [
-                'unique:users',
+                'required',
                 'string',
                 'email',
-                'regex:/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/'
+                'max:150',
+                'regex:/^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$/',
+                Rule::unique('users')->ignore($id)
             ],
             'address' => ['required', 'string', 'max:150'],
-            'phone_number' => ['required', ' string', 'min:9', 'max:20'],
-            'password' => ['required', 'min:8'],
+            'phone_number' => ['required', 'string', 'min:9', 'max:20'],
+            'password' => ['nullable', 'min:8'],
         ];
     }
 }

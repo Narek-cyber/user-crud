@@ -17,6 +17,7 @@ class AdminSeeder extends Seeder
         $admins = [
             [
                 'name' => 'John',
+                'role' => 'admin',
                 'email' => 'john@doe.com',
                 'password' => Hash::make('12345678'),
                 'address' => '123 Main St',
@@ -24,6 +25,7 @@ class AdminSeeder extends Seeder
             ],
             [
                 'name' => 'Jenna',
+                'role' => 'admin',
                 'email' => 'jenna@doe.com',
                 'password' => Hash::make('12345678'),
                 'address' => '456 Oak St',
@@ -34,7 +36,7 @@ class AdminSeeder extends Seeder
         foreach ($admins as $admin) {
             $user = User::query()->firstOrCreate(
                 ['email' => $admin['email']],
-                ['name' => $admin['name'], 'password' => $admin['password']]
+                ['name' => $admin['name'], 'password' => $admin['password'], 'role' => $admin['role']]
             );
 
             $user->user_details()->firstOrCreate(
