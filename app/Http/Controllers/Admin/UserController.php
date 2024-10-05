@@ -3,23 +3,31 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Repositories\User\UserRepository;
 use App\Http\Requests\Admin\User\StoreUserRequest;
 use App\Http\Requests\Admin\User\UpdateUserRequest;
+use App\Http\Services\Session\SessionService;
+use App\Models\Agency;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Log;
 
 class UserController extends Controller
 {
+    public function __construct(
+        protected UserRepository $userRepository
+    )
+    {
+    }
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $users = User::query()
-            ->where('role', 'user')
-            ->with('user_details')
-            ->paginate(20);
+        $users = $this->userRepository->getAll();
 
         return view(
             'admin.users.index',
@@ -40,20 +48,14 @@ class UserController extends Controller
      */
     public function store(StoreUserRequest $request)
     {
-        $user_data = $request->validated();
-
-        $user = User::query()->create([
-            'name' => $user_data['name'],
-            'email' => $user_data['email'],
-            'password' => Hash::make($user_data['password']),
-        ]);
-
-        $user->user_details()->create([
-            'address' => $user_data['address'],
-            'phone_number' => $user_data['phone_number'],
-        ]);
-
-        return redirect()->route('users.index')->with('success', 'New user added.');
+        try {
+            $user_data = $request->validated();
+            $this->userRepository->store($user_data);
+            return redirect()->route('users.index')->with('success', 'New user added.');
+        } catch (Exception $e) {
+            Log::error(__CLASS__ . '::' . __FUNCTION__ . "->" . $e->getMessage());
+            return redirect()->back()->with('error', 'Try again.');
+        }
     }
 
     /**
@@ -69,10 +71,7 @@ class UserController extends Controller
      */
     public function edit(string $id)
     {
-        $user = User::query()
-            ->where('role', 'user')
-            ->with('user_details')
-            ->findOrFail($id);
+        $user = $this->userRepository->find($id);
 
         return view(
             'admin.users.edit',
@@ -85,26 +84,15 @@ class UserController extends Controller
      */
     public function update(UpdateUserRequest $request, string $id)
     {
-        $user = User::query()
-            ->where('role', 'user')
-            ->with('user_details')
-            ->findOrFail($id);
+        try {
+            $user_data = $request->validated();
+            $this->userRepository->update($user_data, $id);
 
-        $user_data = $request->validated();
-
-        $user->update([
-            'name' => $user_data['name'],
-            'email' => $user_data['email'],
-        ]);
-
-        $user->user_details()->updateOrCreate(
-            ['user_id' => $user->id],
-            [
-                'address' => $user_data['address'],
-                'phone_number' => $user_data['phone_number'],
-            ]
-        );
-        return redirect()->route('users.index')->with('success', 'User details was updated.');
+            return redirect()->route('users.index')->with('success', 'User details was updated.');
+        } catch (Exception $e) {
+            Log::error(__CLASS__ . '::' . __FUNCTION__ . "->" . $e->getMessage());
+            return redirect()->back()->with('error', 'Try again.');
+        }
     }
 
     /**
@@ -112,7 +100,12 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
-        User::query()->findOrFail($id)->delete();
-        return redirect()->route('users.index')->with('success', 'User was deleted');
+        try {
+            $this->userRepository->delete($id);
+            return redirect()->route('users.index')->with('success', 'User was deleted');
+        } catch (Exception $e) {
+            Log::error(__CLASS__ . '::' . __FUNCTION__ . "->" . $e->getMessage());
+            return redirect()->back()->with('error', 'Try again.');
+        }
     }
 }
